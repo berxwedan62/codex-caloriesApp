@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CaloriesApp"
+rootProject.name = "Lokma"
 include(":app")

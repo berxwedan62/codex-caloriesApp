@@ -1,1 +1,1 @@
-# Keep app-specific rules here.
+# Add project specific ProGuard rules here.
