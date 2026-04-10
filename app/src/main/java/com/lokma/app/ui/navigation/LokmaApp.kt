@@ -5,9 +5,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -77,9 +77,9 @@ fun LokmaApp() {
                             val icon = when (screen) {
                                 NavRoutes.Home -> Icons.Default.Home
                                 NavRoutes.AddMeal -> Icons.Default.Add
-                                NavRoutes.Library -> Icons.Default.List
+                                NavRoutes.Library -> Icons.AutoMirrored.Filled.List
                                 NavRoutes.History -> Icons.Default.DateRange
-                                NavRoutes.Weight -> Icons.Default.ShowChart
+                                NavRoutes.Weight -> Icons.AutoMirrored.Filled.ShowChart
                                 NavRoutes.Settings -> Icons.Default.Settings
                             }
                             Icon(icon, contentDescription = screen.label)
