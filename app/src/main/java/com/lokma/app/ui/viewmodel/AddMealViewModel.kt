@@ -32,21 +32,20 @@ class AddMealViewModel(
     fun addMeal(
         foodId: Long,
         mealType: MealType = MealType.SNACK,
-        grams: Float? = null
+        grams: Float
     ) {
         viewModelScope.launch {
             val food = foodRepository.getFoodById(foodId) ?: return@launch
-            val effectiveGrams = grams ?: food.defaultGramAmount
             mealRepository.add(
                 MealEntry(
                     date = LocalDate.now().toString(),
                     mealType = mealType.name,
                     foodItemId = foodId,
-                    grams = effectiveGrams,
-                    calculatedCalories = NutritionCalculator.calories(food, effectiveGrams),
-                    calculatedProtein = NutritionCalculator.protein(food, effectiveGrams),
-                    calculatedCarbs = NutritionCalculator.carbs(food, effectiveGrams),
-                    calculatedFat = NutritionCalculator.fat(food, effectiveGrams)
+                    grams = grams,
+                    calculatedCalories = NutritionCalculator.calories(food, grams),
+                    calculatedProtein = NutritionCalculator.protein(food, grams),
+                    calculatedCarbs = NutritionCalculator.carbs(food, grams),
+                    calculatedFat = NutritionCalculator.fat(food, grams)
                 )
             )
         }
