@@ -30,6 +30,9 @@ fun SettingsScreen() {
     val settings by vm.settings.collectAsStateWithLifecycle()
 
     var targetInput by remember(settings.dailyCalorieTarget) { mutableStateOf(settings.dailyCalorieTarget.toString()) }
+    var warningThresholdInput by remember(settings.calorieWarningThreshold) {
+        mutableStateOf(settings.calorieWarningThreshold.toString())
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("Settings")
@@ -40,6 +43,16 @@ fun SettingsScreen() {
             modifier = Modifier.fillMaxWidth()
         )
         Button(onClick = { targetInput.toIntOrNull()?.let { vm.updateTarget(it) } }) { Text("Save target") }
+
+        OutlinedTextField(
+            value = warningThresholdInput,
+            onValueChange = { warningThresholdInput = it },
+            label = { Text("Calorie warning threshold") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Button(onClick = { warningThresholdInput.toIntOrNull()?.let { vm.updateWarningThreshold(it) } }) {
+            Text("Save warning threshold")
+        }
 
         Text("Use metric units")
         Switch(checked = settings.useMetricUnits, onCheckedChange = { vm.toggleMetric(it) })

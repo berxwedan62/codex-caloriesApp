@@ -29,6 +29,7 @@ class HomeViewModel(
             meals = meals,
             totalCalories = total,
             calorieTarget = settings.dailyCalorieTarget,
+            calorieWarningThreshold = settings.calorieWarningThreshold,
             remainingCalories = settings.dailyCalorieTarget - total
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState(today = today))
@@ -54,5 +55,6 @@ data class HomeUiState(
     val meals: List<MealEntryUi> = emptyList(),
     val totalCalories: Int = 0,
     val calorieTarget: Int = 2200,
+    val calorieWarningThreshold: Int = 300,
     val remainingCalories: Int = 2200
 )

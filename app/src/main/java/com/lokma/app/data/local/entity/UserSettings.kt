@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class UserSettings(
     @PrimaryKey val id: Int = 1,
     val dailyCalorieTarget: Int = 2200,
+    val calorieWarningThreshold: Int = 300,
     val premiumUnlocked: Boolean = false,
     val useMetricUnits: Boolean = true
 )

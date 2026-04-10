@@ -13,6 +13,11 @@ class SettingsRepository(private val dao: UserSettingsDao) {
         dao.insert(current.copy(dailyCalorieTarget = target))
     }
 
+    suspend fun updateWarningThreshold(threshold: Int) {
+        val current = dao.getSettings() ?: UserSettings()
+        dao.insert(current.copy(calorieWarningThreshold = threshold))
+    }
+
     suspend fun updateUseMetric(useMetric: Boolean) {
         val current = dao.getSettings() ?: UserSettings()
         dao.insert(current.copy(useMetricUnits = useMetric))

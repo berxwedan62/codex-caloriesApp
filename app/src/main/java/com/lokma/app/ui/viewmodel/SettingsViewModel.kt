@@ -18,6 +18,10 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         viewModelScope.launch { repository.updateDailyTarget(target) }
     }
 
+    fun updateWarningThreshold(threshold: Int) {
+        viewModelScope.launch { repository.updateWarningThreshold(threshold) }
+    }
+
     fun toggleMetric(useMetric: Boolean) {
         viewModelScope.launch { repository.updateUseMetric(useMetric) }
     }

@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [FoodItem::class, MealEntry::class, WeightEntry::class, UserSettings::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class LokmaDatabase : RoomDatabase() {
