@@ -7,15 +7,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +36,7 @@ import com.lokma.app.LokmaApplication
 import com.lokma.app.domain.model.MealType
 import com.lokma.app.ui.components.FoodRow
 import com.lokma.app.ui.viewmodel.AddMealViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun AddMealScreen() {
@@ -41,6 +48,15 @@ fun AddMealScreen() {
     var query by remember { mutableStateOf("") }
     var grams by remember { mutableStateOf("100") }
     var selectedMeal by remember { mutableStateOf(MealType.BREAKFAST) }
+    var recentlyAddedFoodId by remember { mutableStateOf<Long?>(null) }
+    var warningMessage by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(warningMessage) {
+        val message = warningMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message = message)
+        warningMessage = null
+    }
 
     Column(
         modifier = Modifier
@@ -48,6 +64,7 @@ fun AddMealScreen() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        SnackbarHost(hostState = snackbarHostState)
         Text("Add meal")
         OutlinedTextField(
             value = query,
@@ -69,12 +86,35 @@ fun AddMealScreen() {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(foods, key = { it.id }) { food ->
                 FoodRow(food = food, trailing = {
-                    Button(onClick = { vm.addMeal(food.id, selectedMeal, grams.toFloatOrNull() ?: food.defaultGramAmount) }) {
-                        Text("Add")
+                    val isAdded = recentlyAddedFoodId == food.id
+                    Button(onClick = {
+                        val parsedGrams = grams.toFloatOrNull()
+                        if (parsedGrams == null || parsedGrams <= 0f) {
+                            warningMessage = "Enter a valid grams amount before adding."
+                            return@Button
+                        }
+
+                        vm.addMeal(food.id, selectedMeal, parsedGrams)
+                        recentlyAddedFoodId = food.id
+                    }) {
+                        if (isAdded) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "Added",
+                            )
+                        } else {
+                            Text("Add")
+                        }
                     }
                 })
             }
         }
+    }
+
+    LaunchedEffect(recentlyAddedFoodId) {
+        if (recentlyAddedFoodId == null) return@LaunchedEffect
+        delay(1500)
+        recentlyAddedFoodId = null
     }
 }
 
