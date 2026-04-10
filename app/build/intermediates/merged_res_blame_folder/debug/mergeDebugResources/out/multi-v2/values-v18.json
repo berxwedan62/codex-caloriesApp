@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.lokma.app-mergeDebugResources-68:/values-v18/values-v18.xml",
+            "outputFile": "com.lokma.app-mergeDebugResources-71:/values-v18/values-v18.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\3d76d6f3a7819e51ffe13090fabbbe84\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
+                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\487c73d28fb47a7c58ec4eff8c0d3691\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

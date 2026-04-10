@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.lokma.app-mergeDebugResources-68:/values-v23/values-v23.xml",
+            "outputFile": "com.lokma.app-mergeDebugResources-71:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\3d76d6f3a7819e51ffe13090fabbbe84\\transformed\\appcompat-1.6.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\487c73d28fb47a7c58ec4eff8c0d3691\\transformed\\appcompat-1.6.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -15,7 +15,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\884a4c54522be71243a4b5f3b40eb2c3\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\2689f7d7a18feccc834bd5bd751900b1\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,5,9,13,16,19,22,25,28,32",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
@@ -34,7 +34,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\9fd489eaa4fd1d8c33a8dfcf840eff0a\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\409ca0e9881fa95754621003ee084c55\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

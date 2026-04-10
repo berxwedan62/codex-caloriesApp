@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.lokma.app-mergeDebugResources-68:/values-v24/values-v24.xml",
+            "outputFile": "com.lokma.app-mergeDebugResources-71:/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\3d76d6f3a7819e51ffe13090fabbbe84\\transformed\\appcompat-1.6.1\\res\\values-v24\\values-v24.xml",
+                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\487c73d28fb47a7c58ec4eff8c0d3691\\transformed\\appcompat-1.6.1\\res\\values-v24\\values-v24.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\884a4c54522be71243a4b5f3b40eb2c3\\transformed\\material-1.12.0\\res\\values-v24\\values-v24.xml",
+                    "source": "C:\\Users\\deniz\\.gradle\\caches\\9.0-milestone-1\\transforms\\2689f7d7a18feccc834bd5bd751900b1\\transformed\\material-1.12.0\\res\\values-v24\\values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,9,12,15",
                         "startColumns": "4,4,4,4,4,4,4,4",

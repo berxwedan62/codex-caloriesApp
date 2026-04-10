@@ -24,7 +24,6 @@
         android:label="Lokma"
         android:roundIcon="@android:drawable/ic_menu_info_details"
         android:supportsRtl="true"
-        android:testOnly="true"
         android:theme="@style/Theme.Lokma" >
         <activity
             android:name="com.lokma.app.MainActivity"
