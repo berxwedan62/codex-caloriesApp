@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HistoryViewModel(private val mealRepository: MealRepository) : ViewModel() {
@@ -24,12 +23,6 @@ class HistoryViewModel(private val mealRepository: MealRepository) : ViewModel()
 
     fun shiftDays(days: Long) {
         selectedDate.value = LocalDate.parse(selectedDate.value).plusDays(days).toString()
-    }
-
-    fun delete(id: Long) {
-        viewModelScope.launch {
-            mealRepository.deleteById(id)
-        }
     }
 
     companion object {
