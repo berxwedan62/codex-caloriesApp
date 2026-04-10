@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HomeViewModel(
-    mealRepository: MealRepository,
+    private val mealRepository: MealRepository,
     settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val today = LocalDate.now().toString()
@@ -31,6 +32,12 @@ class HomeViewModel(
             remainingCalories = settings.dailyCalorieTarget - total
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState(today = today))
+
+    fun delete(id: Long) {
+        viewModelScope.launch {
+            mealRepository.deleteById(id)
+        }
+    }
 
     companion object {
         fun factory(mealRepository: MealRepository, settingsRepository: SettingsRepository): ViewModelProvider.Factory =

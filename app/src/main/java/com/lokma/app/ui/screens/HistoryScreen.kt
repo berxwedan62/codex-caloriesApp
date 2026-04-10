@@ -33,8 +33,7 @@ fun HistoryScreen() {
         date = vm.date(),
         entries = entries,
         onPrevious = { vm.shiftDays(-1) },
-        onNext = { vm.shiftDays(1) },
-        onDelete = { vm.delete(it) }
+        onNext = { vm.shiftDays(1) }
     )
 }
 
@@ -43,8 +42,7 @@ private fun HistoryContent(
     date: String,
     entries: List<MealEntryUi>,
     onPrevious: () -> Unit,
-    onNext: () -> Unit,
-    onDelete: (Long) -> Unit
+    onNext: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("History")
@@ -57,12 +55,9 @@ private fun HistoryContent(
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(entries, key = { it.entry.id }) { item ->
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column {
-                            Text(item.foodName)
-                            Text("${item.entry.mealType} • ${item.entry.grams.toInt()}g • ${item.entry.calculatedCalories} kcal")
-                        }
-                        Button(onClick = { onDelete(item.entry.id) }) { Text("Delete") }
+                    Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+                        Text(item.foodName)
+                        Text("${item.entry.mealType} • ${item.entry.grams.toInt()}g • ${item.entry.calculatedCalories} kcal")
                     }
                 }
             }
@@ -73,5 +68,5 @@ private fun HistoryContent(
 @Preview(showBackground = true)
 @Composable
 private fun HistoryPreview() {
-    HistoryContent("2026-04-09", emptyList(), {}, {}, {})
+    HistoryContent("2026-04-09", emptyList(), {}, {})
 }
