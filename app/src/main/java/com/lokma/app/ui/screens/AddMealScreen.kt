@@ -39,7 +39,21 @@ import com.lokma.app.ui.viewmodel.AddMealViewModel
 import kotlinx.coroutines.delay
 
 private const val MIN_GRAMS = 5
-private const val GRAM_STEP = 5
+
+private const val DEFAULT_GRAM_INPUT = "100"
+
+private fun sanitizeGramInput(input: String): String {
+    val digitsAndDecimal = input.filter { it.isDigit() || it == '.' }
+    val firstDecimalIndex = digitsAndDecimal.indexOf('.')
+    if (firstDecimalIndex == -1) return digitsAndDecimal
+
+    val beforeDecimal = digitsAndDecimal.substring(0, firstDecimalIndex + 1)
+    val afterDecimal = digitsAndDecimal.substring(firstDecimalIndex + 1).replace(".", "")
+    return beforeDecimal + afterDecimal
+}
+
+private fun formatGrams(grams: Float): String =
+    if (grams % 1f == 0f) grams.toInt().toString() else grams.toString()
 
 @Composable
 fun AddMealScreen() {
@@ -58,7 +72,7 @@ fun AddMealScreen() {
     LaunchedEffect(recentlyAddedFoodId, recentlyAddedGrams) {
         recentlyAddedFoodId ?: return@LaunchedEffect
         val addedGrams = recentlyAddedGrams ?: return@LaunchedEffect
-        val message = "Added ${addedGrams.toInt()}g as Snack"
+        val message = "Added ${formatGrams(addedGrams)}g as Snack"
         snackbarHostState.showSnackbar(message = message)
     }
 
@@ -80,7 +94,7 @@ fun AddMealScreen() {
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = "Tap Add and enter grams (minimum 5g, in 5g steps).",
+            text = "Tap Add and enter grams (minimum 5g).",
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -90,7 +104,7 @@ fun AddMealScreen() {
                     val isAdded = recentlyAddedFoodId == food.id
                     Button(onClick = {
                         selectedFoodForAdd = food
-                        gramInput = food.defaultGramAmount.toInt().toString()
+                        gramInput = DEFAULT_GRAM_INPUT
                     }) {
                         if (isAdded) {
                             Icon(
@@ -107,12 +121,11 @@ fun AddMealScreen() {
     }
 
     selectedFoodForAdd?.let { selectedFood ->
-        val grams = gramInput.toIntOrNull()
+        val grams = gramInput.toFloatOrNull()
         val validationError = when {
             gramInput.isBlank() -> "Enter gram amount"
             grams == null -> "Enter a valid number"
             grams < MIN_GRAMS -> "Minimum is ${MIN_GRAMS}g"
-            grams % GRAM_STEP != 0 -> "Use ${GRAM_STEP}g steps"
             else -> null
         }
 
@@ -124,15 +137,17 @@ fun AddMealScreen() {
                     Text(selectedFood.name)
                     OutlinedTextField(
                         value = gramInput,
-                        onValueChange = { gramInput = it.filter(Char::isDigit) },
+                        onValueChange = { input ->
+                            gramInput = sanitizeGramInput(input)
+                        },
                         label = { Text("Gram amount") },
                         placeholder = { Text("e.g. 125") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         isError = validationError != null,
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("Minimum ${MIN_GRAMS}g • Step ${GRAM_STEP}g")
+                    Text("Minimum ${MIN_GRAMS}g")
                     if (validationError != null) {
                         Text(validationError)
                     }
@@ -142,9 +157,9 @@ fun AddMealScreen() {
                 TextButton(
                     onClick = {
                         if (grams != null && validationError == null) {
-                            vm.addMeal(foodId = selectedFood.id, grams = grams.toFloat())
+                            vm.addMeal(foodId = selectedFood.id, grams = grams)
                             recentlyAddedFoodId = selectedFood.id
-                            recentlyAddedGrams = grams.toFloat()
+                            recentlyAddedGrams = grams
                             selectedFoodForAdd = null
                         }
                     },

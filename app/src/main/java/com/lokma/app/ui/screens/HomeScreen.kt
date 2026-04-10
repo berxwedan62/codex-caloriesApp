@@ -26,6 +26,9 @@ import com.lokma.app.LokmaApplication
 import com.lokma.app.ui.viewmodel.HomeUiState
 import com.lokma.app.ui.viewmodel.HomeViewModel
 
+private fun formatGrams(grams: Float): String =
+    if (grams % 1f == 0f) grams.toInt().toString() else grams.toString()
+
 @Composable
 fun HomeScreen() {
     val app = LocalContext.current.applicationContext as LokmaApplication
@@ -59,7 +62,7 @@ private fun HomeContent(
                     ) {
                         Column {
                             Text("${meal.foodName} (${meal.entry.mealType})")
-                            Text("${meal.entry.grams.toInt()}g • ${meal.entry.calculatedCalories} kcal")
+                            Text("${formatGrams(meal.entry.grams)}g • ${meal.entry.calculatedCalories} kcal")
                         }
                         Button(onClick = { onDelete(meal.entry.id) }) {
                             Text("Delete")
