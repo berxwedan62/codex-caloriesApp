@@ -50,16 +50,13 @@ fun AddMealScreen() {
 
     var query by remember { mutableStateOf("") }
     var recentlyAddedFoodId by remember { mutableStateOf<Long?>(null) }
-    var recentlyAddedGrams by remember { mutableStateOf<Int?>(null) }
-    var selectedFoodForAdd by remember { mutableStateOf<FoodItem?>(null) }
-    var gramInput by remember { mutableStateOf("") }
+    var recentlyAddedGrams by remember { mutableStateOf<Float?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(recentlyAddedFoodId, recentlyAddedGrams) {
-        val foodId = recentlyAddedFoodId ?: return@LaunchedEffect
-        val grams = recentlyAddedGrams ?: return@LaunchedEffect
-        val addedFood = foods.firstOrNull { it.id == foodId } ?: return@LaunchedEffect
-        val message = "Added ${grams}g ${addedFood.name} as Snack"
+        recentlyAddedFoodId ?: return@LaunchedEffect
+        val addedGrams = recentlyAddedGrams ?: return@LaunchedEffect
+        val message = "Added ${addedGrams.toInt()}g as Snack"
         snackbarHostState.showSnackbar(message = message)
     }
 
@@ -90,8 +87,10 @@ fun AddMealScreen() {
                 FoodRow(food = food, trailing = {
                     val isAdded = recentlyAddedFoodId == food.id
                     Button(onClick = {
-                        selectedFoodForAdd = food
-                        gramInput = ""
+                        val gramsToAdd = food.defaultGramAmount
+                        vm.addMeal(food.id, grams = gramsToAdd)
+                        recentlyAddedFoodId = food.id
+                        recentlyAddedGrams = gramsToAdd
                     }) {
                         if (isAdded) {
                             Icon(
