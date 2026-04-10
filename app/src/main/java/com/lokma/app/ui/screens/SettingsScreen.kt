@@ -47,10 +47,16 @@ fun SettingsScreen() {
         OutlinedTextField(
             value = warningThresholdInput,
             onValueChange = { warningThresholdInput = it },
-            label = { Text("Calorie warning threshold") },
+            label = { Text("Calorie Warning Threshold") },
             modifier = Modifier.fillMaxWidth()
         )
-        Button(onClick = { warningThresholdInput.toIntOrNull()?.let { vm.updateWarningThreshold(it) } }) {
+        Button(
+            onClick = {
+                warningThresholdInput.toIntOrNull()
+                    ?.takeIf { it >= 0 }
+                    ?.let { vm.updateWarningThreshold(it) }
+            }
+        ) {
             Text("Save warning threshold")
         }
 

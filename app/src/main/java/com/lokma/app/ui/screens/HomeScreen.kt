@@ -1,5 +1,10 @@
 package com.lokma.app.ui.screens
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +39,7 @@ import com.lokma.app.ui.components.CalorieWarningState
 import com.lokma.app.ui.components.resolveCalorieWarningState
 import com.lokma.app.ui.viewmodel.HomeUiState
 import com.lokma.app.ui.viewmodel.HomeViewModel
+import com.lokma.app.ui.viewmodel.RemainingWarningState
 
 private fun formatGrams(grams: Float): String =
     if (grams % 1f == 0f) grams.toInt().toString() else grams.toString()
@@ -90,10 +96,9 @@ private fun HomeContent(
                     modifier = Modifier.alpha(if (shouldBlinkTotal) blinkingAlpha else 1f)
                 )
                 Text("Target: ${state.calorieTarget} kcal")
-                Text(
-                    "Remaining: ${state.remainingCalories} kcal",
-                    color = remainingColor,
-                    modifier = Modifier.alpha(if (shouldBlinkRemaining) blinkingAlpha else 1f)
+                RemainingText(
+                    remainingCalories = state.remainingCalories,
+                    warningState = state.remainingWarningState
                 )
             }
         }
@@ -120,11 +125,46 @@ private fun HomeContent(
     }
 }
 
+@Composable
+private fun RemainingText(
+    remainingCalories: Int,
+    warningState: RemainingWarningState
+) {
+    val blinkEnabled = warningState != RemainingWarningState.Normal
+    val blinkingAlpha by rememberInfiniteTransition(label = "remainingBlink").animateFloat(
+        initialValue = 1f,
+        targetValue = 0.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 550),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "remainingBlinkAlpha"
+    )
+    val warningColor = when (warningState) {
+        RemainingWarningState.OverTarget -> Color(0xFFDC2626)
+        RemainingWarningState.NearTarget -> Color(0xFFEAB308)
+        RemainingWarningState.Normal -> MaterialTheme.colorScheme.onSurface
+    }
+
+    Text(
+        text = "Remaining: $remainingCalories kcal",
+        color = warningColor,
+        modifier = Modifier.alpha(if (blinkEnabled) blinkingAlpha else 1f)
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun HomePreview() {
     HomeContent(
-        state = HomeUiState(today = "2026-04-09", totalCalories = 980, calorieTarget = 2200, remainingCalories = 1220),
+        state = HomeUiState(
+            today = "2026-04-09",
+            totalCalories = 980,
+            calorieTarget = 2200,
+            remainingCalories = 1220,
+            calorieWarningThreshold = 200,
+            remainingWarningState = RemainingWarningState.Normal
+        ),
         onDelete = {}
     )
 }

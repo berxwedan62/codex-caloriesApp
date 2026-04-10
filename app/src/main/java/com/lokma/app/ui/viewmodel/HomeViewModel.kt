@@ -24,13 +24,20 @@ class HomeViewModel(
         settingsRepository.observe()
     ) { meals, settings ->
         val total = meals.sumOf { it.entry.calculatedCalories }
+        val remainingCalories = settings.dailyCalorieTarget - total
+        val remainingWarningState = when {
+            total > settings.dailyCalorieTarget -> RemainingWarningState.OverTarget
+            remainingCalories <= settings.calorieWarningThreshold -> RemainingWarningState.NearTarget
+            else -> RemainingWarningState.Normal
+        }
         HomeUiState(
             today = today,
             meals = meals,
             totalCalories = total,
             calorieTarget = settings.dailyCalorieTarget,
+            remainingCalories = remainingCalories,
             calorieWarningThreshold = settings.calorieWarningThreshold,
-            remainingCalories = settings.dailyCalorieTarget - total
+            remainingWarningState = remainingWarningState
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState(today = today))
 
@@ -55,6 +62,13 @@ data class HomeUiState(
     val meals: List<MealEntryUi> = emptyList(),
     val totalCalories: Int = 0,
     val calorieTarget: Int = 2200,
-    val calorieWarningThreshold: Int = 300,
-    val remainingCalories: Int = 2200
+    val remainingCalories: Int = 2200,
+    val calorieWarningThreshold: Int = 200,
+    val remainingWarningState: RemainingWarningState = RemainingWarningState.Normal
 )
+
+enum class RemainingWarningState {
+    Normal,
+    NearTarget,
+    OverTarget
+}

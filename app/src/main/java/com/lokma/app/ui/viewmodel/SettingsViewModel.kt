@@ -19,7 +19,7 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     }
 
     fun updateWarningThreshold(threshold: Int) {
-        viewModelScope.launch { repository.updateWarningThreshold(threshold) }
+        viewModelScope.launch { repository.updateCalorieWarningThreshold(threshold) }
     }
 
     fun toggleMetric(useMetric: Boolean) {
