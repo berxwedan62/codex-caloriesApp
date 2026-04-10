@@ -15,6 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lokma.app.LokmaApplication
+import com.lokma.app.ui.components.CalorieWarningState
+import com.lokma.app.ui.components.resolveCalorieWarningState
 import com.lokma.app.ui.viewmodel.HomeUiState
 import com.lokma.app.ui.viewmodel.HomeViewModel
 import com.lokma.app.ui.viewmodel.RemainingWarningState
@@ -50,11 +57,44 @@ private fun HomeContent(
     state: HomeUiState,
     onDelete: (Long) -> Unit
 ) {
+    val warningState = resolveCalorieWarningState(
+        totalCalories = state.totalCalories,
+        calorieTarget = state.calorieTarget,
+        calorieWarningThreshold = state.calorieWarningThreshold
+    )
+    val blinkTransition = rememberInfiniteTransition(label = "homeWarningBlink")
+    val blinkingAlpha by blinkTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "homeBlinkingAlpha"
+    )
+    val shouldBlinkRemaining = warningState != CalorieWarningState.NORMAL
+    val shouldBlinkTotal = warningState == CalorieWarningState.OVER_TARGET
+    val remainingColor = when (warningState) {
+        CalorieWarningState.NORMAL -> MaterialTheme.colorScheme.onSurface
+        CalorieWarningState.LOW_REMAINING -> Color(0xFFF59E0B)
+        CalorieWarningState.OVER_TARGET -> MaterialTheme.colorScheme.error
+    }
+    val totalColor = if (warningState == CalorieWarningState.OVER_TARGET) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("Today • ${state.today}", style = MaterialTheme.typography.titleLarge)
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(12.dp)) {
-                Text("Total: ${state.totalCalories} kcal", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Total: ${state.totalCalories} kcal",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = totalColor,
+                    modifier = Modifier.alpha(if (shouldBlinkTotal) blinkingAlpha else 1f)
+                )
                 Text("Target: ${state.calorieTarget} kcal")
                 RemainingText(
                     remainingCalories = state.remainingCalories,

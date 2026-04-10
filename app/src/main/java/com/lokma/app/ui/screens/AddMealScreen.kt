@@ -1,5 +1,10 @@
 package com.lokma.app.ui.screens
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +18,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -27,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lokma.app.LokmaApplication
 import com.lokma.app.data.local.entity.FoodItem
+import com.lokma.app.ui.components.CalorieWarningState
 import com.lokma.app.ui.components.FoodRow
+import com.lokma.app.ui.components.resolveCalorieWarningState
 import com.lokma.app.ui.viewmodel.AddMealViewModel
 import kotlinx.coroutines.delay
 
@@ -59,8 +69,15 @@ private fun formatGrams(grams: Float): String =
 fun AddMealScreen() {
     val app = LocalContext.current.applicationContext as LokmaApplication
     val vm: AddMealViewModel =
-        viewModel(factory = AddMealViewModel.factory(app.container.foodRepository, app.container.mealRepository))
+        viewModel(
+            factory = AddMealViewModel.factory(
+                app.container.foodRepository,
+                app.container.mealRepository,
+                app.container.settingsRepository
+            )
+        )
     val foods by vm.foods.collectAsState()
+    val uiState by vm.uiState.collectAsState()
 
     var query by remember { mutableStateOf("") }
     var selectedFoodForAdd by remember { mutableStateOf<FoodItem?>(null) }
@@ -68,6 +85,41 @@ fun AddMealScreen() {
     var recentlyAddedFoodId by remember { mutableStateOf<Long?>(null) }
     var recentlyAddedGrams by remember { mutableStateOf<Float?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val gramsForDialog = gramInput.toFloatOrNull()
+    val previewCalories = if (gramsForDialog != null && gramsForDialog > 0f) {
+        selectedFoodForAdd?.let { ((it.caloriesPer100g * gramsForDialog) / 100f).toInt() } ?: 0
+    } else {
+        0
+    }
+    val previewTotal = uiState.totalCalories + previewCalories
+    val previewRemaining = uiState.calorieTarget - previewTotal
+    val warningState = resolveCalorieWarningState(
+        totalCalories = previewTotal,
+        calorieTarget = uiState.calorieTarget,
+        calorieWarningThreshold = uiState.calorieWarningThreshold
+    )
+    val blinkTransition = rememberInfiniteTransition(label = "addWarningBlink")
+    val blinkingAlpha by blinkTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "addBlinkingAlpha"
+    )
+    val shouldBlinkRemaining = warningState != CalorieWarningState.NORMAL
+    val shouldBlinkCalories = warningState == CalorieWarningState.OVER_TARGET
+    val remainingColor = when (warningState) {
+        CalorieWarningState.NORMAL -> MaterialTheme.colorScheme.onSurface
+        CalorieWarningState.LOW_REMAINING -> Color(0xFFF59E0B)
+        CalorieWarningState.OVER_TARGET -> MaterialTheme.colorScheme.error
+    }
+    val caloriesColor = if (warningState == CalorieWarningState.OVER_TARGET) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
 
     LaunchedEffect(recentlyAddedFoodId, recentlyAddedGrams) {
         recentlyAddedFoodId ?: return@LaunchedEffect
@@ -83,6 +135,16 @@ fun AddMealScreen() {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         SnackbarHost(hostState = snackbarHostState)
+        Text(
+            text = "Remaining: ${previewRemaining} kcal",
+            color = remainingColor,
+            modifier = Modifier.alpha(if (shouldBlinkRemaining) blinkingAlpha else 1f)
+        )
+        Text(
+            text = "Calories: ${previewTotal} / ${uiState.calorieTarget} kcal",
+            color = caloriesColor,
+            modifier = Modifier.alpha(if (shouldBlinkCalories) blinkingAlpha else 1f)
+        )
         Text("Add meal")
         OutlinedTextField(
             value = query,
@@ -135,6 +197,7 @@ fun AddMealScreen() {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(selectedFood.name)
+                    Text("Remaining after add: ${previewRemaining} kcal")
                     OutlinedTextField(
                         value = gramInput,
                         onValueChange = { input ->
