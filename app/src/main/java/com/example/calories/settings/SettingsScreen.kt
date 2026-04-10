@@ -13,20 +13,20 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = modifier.padding(16.dp),
@@ -87,7 +87,7 @@ fun SettingsScreen(
 
         SettingsCard(title = "About") {
             Text(
-                "This settings screen keeps core preferences local using DataStore.",
+                "This settings screen keeps core preferences local on this device.",
                 style = MaterialTheme.typography.bodySmall,
             )
         }

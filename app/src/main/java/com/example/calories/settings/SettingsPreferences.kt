@@ -1,19 +1,13 @@
 package com.example.calories.settings
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
 private const val SETTINGS_STORE_NAME = "settings"
-
-private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS_STORE_NAME)
 
 enum class UnitPreference {
     METRIC,
@@ -29,45 +23,49 @@ data class SettingsUiState(
 
 class SettingsPreferences(private val context: Context) {
 
-    val settings: Flow<SettingsUiState> = context.settingsDataStore.data.map { prefs ->
-        SettingsUiState(
-            dailyCalorieTarget = prefs[Keys.DAILY_CALORIE_TARGET] ?: 2000,
-            isPremiumEnabled = prefs[Keys.PREMIUM_ENABLED] ?: false,
-            exportEnabled = prefs[Keys.EXPORT_ENABLED] ?: false,
-            unitPreference = prefs[Keys.UNIT_PREFERENCE]
-                ?.let { value -> UnitPreference.entries.firstOrNull { it.name == value } }
-                ?: UnitPreference.METRIC,
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences(SETTINGS_STORE_NAME, Context.MODE_PRIVATE)
+
+    private val _settings = MutableStateFlow(readSettings())
+
+    val settings: Flow<SettingsUiState> = _settings.asStateFlow().map { it }
+
+    private fun readSettings(): SettingsUiState {
+        val storedUnitName = sharedPreferences.getString(Keys.UNIT_PREFERENCE, UnitPreference.METRIC.name)
+        val parsedUnit = UnitPreference.entries.firstOrNull { it.name == storedUnitName } ?: UnitPreference.METRIC
+
+        return SettingsUiState(
+            dailyCalorieTarget = sharedPreferences.getInt(Keys.DAILY_CALORIE_TARGET, 2000),
+            isPremiumEnabled = sharedPreferences.getBoolean(Keys.PREMIUM_ENABLED, false),
+            exportEnabled = sharedPreferences.getBoolean(Keys.EXPORT_ENABLED, false),
+            unitPreference = parsedUnit,
         )
     }
 
     suspend fun setDailyCalorieTarget(value: Int) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[Keys.DAILY_CALORIE_TARGET] = value
-        }
+        sharedPreferences.edit().putInt(Keys.DAILY_CALORIE_TARGET, value).apply()
+        _settings.value = readSettings()
     }
 
     suspend fun setPremiumEnabled(enabled: Boolean) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[Keys.PREMIUM_ENABLED] = enabled
-        }
+        sharedPreferences.edit().putBoolean(Keys.PREMIUM_ENABLED, enabled).apply()
+        _settings.value = readSettings()
     }
 
     suspend fun setExportEnabled(enabled: Boolean) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[Keys.EXPORT_ENABLED] = enabled
-        }
+        sharedPreferences.edit().putBoolean(Keys.EXPORT_ENABLED, enabled).apply()
+        _settings.value = readSettings()
     }
 
     suspend fun setUnitPreference(preference: UnitPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[Keys.UNIT_PREFERENCE] = preference.name
-        }
+        sharedPreferences.edit().putString(Keys.UNIT_PREFERENCE, preference.name).apply()
+        _settings.value = readSettings()
     }
 
     private object Keys {
-        val DAILY_CALORIE_TARGET = intPreferencesKey("daily_calorie_target")
-        val PREMIUM_ENABLED = booleanPreferencesKey("premium_enabled")
-        val EXPORT_ENABLED = booleanPreferencesKey("export_enabled")
-        val UNIT_PREFERENCE = stringPreferencesKey("unit_preference")
+        const val DAILY_CALORIE_TARGET = "daily_calorie_target"
+        const val PREMIUM_ENABLED = "premium_enabled"
+        const val EXPORT_ENABLED = "export_enabled"
+        const val UNIT_PREFERENCE = "unit_preference"
     }
 }

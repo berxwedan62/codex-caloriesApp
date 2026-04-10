@@ -16,6 +16,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lokma.app.LokmaApplication
 import com.lokma.app.domain.model.MealType
@@ -36,7 +36,7 @@ fun AddMealScreen() {
     val app = LocalContext.current.applicationContext as LokmaApplication
     val vm: AddMealViewModel =
         viewModel(factory = AddMealViewModel.factory(app.container.foodRepository, app.container.mealRepository))
-    val foods by vm.foods.collectAsStateWithLifecycle()
+    val foods by vm.foods.collectAsState()
 
     var query by remember { mutableStateOf("") }
     var grams by remember { mutableStateOf("100") }
@@ -90,7 +90,6 @@ private fun MealTypeSelector(selected: MealType, onSelect: (MealType) -> Unit) {
             label = { Text("Meal") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
-                .menuAnchor()
                 .fillMaxWidth()
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
