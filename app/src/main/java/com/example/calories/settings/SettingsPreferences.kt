@@ -63,9 +63,16 @@ class SettingsPreferences(private val context: Context) {
     }
 
     private object Keys {
+<<<<<<< codex/fix-reported-issues-4tll6s
         const val DAILY_CALORIE_TARGET = "daily_calorie_target"
         const val PREMIUM_ENABLED = "premium_enabled"
         const val EXPORT_ENABLED = "export_enabled"
         const val UNIT_PREFERENCE = "unit_preference"
+=======
+        val DAILY_CALORIE_TARGET: Preferences.Key<Int> = intPreferencesKey("daily_calorie_target")
+        val PREMIUM_ENABLED: Preferences.Key<Boolean> = booleanPreferencesKey("premium_enabled")
+        val EXPORT_ENABLED: Preferences.Key<Boolean> = booleanPreferencesKey("export_enabled")
+        val UNIT_PREFERENCE: Preferences.Key<String> = stringPreferencesKey("unit_preference")
+>>>>>>> main
     }
 }
