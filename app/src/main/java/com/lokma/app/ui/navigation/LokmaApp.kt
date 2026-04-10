@@ -14,6 +14,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
@@ -25,10 +30,24 @@ import com.lokma.app.ui.screens.FoodLibraryScreen
 import com.lokma.app.ui.screens.HistoryScreen
 import com.lokma.app.ui.screens.HomeScreen
 import com.lokma.app.ui.screens.SettingsScreen
+import com.lokma.app.ui.screens.SplashScreen
 import com.lokma.app.ui.screens.WeightScreen
+import kotlinx.coroutines.delay
 
 @Composable
 fun LokmaApp() {
+    var showSplash by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(2_000)
+        showSplash = false
+    }
+
+    if (showSplash) {
+        SplashScreen()
+        return
+    }
+
     val navController = rememberNavController()
     val items = listOf(
         NavRoutes.Home,
