@@ -40,7 +40,7 @@ abstract class LokmaDatabase : RoomDatabase() {
                     LokmaDatabase::class.java,
                     "lokma_database"
                 )
-                    .fallbackToDestructiveMigration(true)
+                    .fallbackToDestructiveMigration()
                     .addCallback(SeedCallback)
                     .build()
                 INSTANCE = instance
