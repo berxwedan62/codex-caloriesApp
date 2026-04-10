@@ -10,11 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
@@ -27,13 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lokma.app.LokmaApplication
-import com.lokma.app.domain.model.MealType
 import com.lokma.app.ui.components.FoodRow
 import com.lokma.app.ui.viewmodel.AddMealViewModel
 import kotlinx.coroutines.delay
@@ -46,16 +41,14 @@ fun AddMealScreen() {
     val foods by vm.foods.collectAsState()
 
     var query by remember { mutableStateOf("") }
-    var grams by remember { mutableStateOf("100") }
-    var selectedMeal by remember { mutableStateOf(MealType.BREAKFAST) }
     var recentlyAddedFoodId by remember { mutableStateOf<Long?>(null) }
-    var warningMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(warningMessage) {
-        val message = warningMessage ?: return@LaunchedEffect
+    LaunchedEffect(recentlyAddedFoodId) {
+        val foodId = recentlyAddedFoodId ?: return@LaunchedEffect
+        val addedFood = foods.firstOrNull { it.id == foodId } ?: return@LaunchedEffect
+        val message = "Added ${addedFood.defaultGramAmount.toInt()}g as Snack"
         snackbarHostState.showSnackbar(message = message)
-        warningMessage = null
     }
 
     Column(
@@ -75,11 +68,8 @@ fun AddMealScreen() {
             label = { Text("Search food") },
             modifier = Modifier.fillMaxWidth()
         )
-        MealTypeSelector(selected = selectedMeal, onSelect = { selectedMeal = it })
-        OutlinedTextField(
-            value = grams,
-            onValueChange = { grams = it },
-            label = { Text("Grams") },
+        Text(
+            text = "Quick add uses each food's default grams and logs it as Snack.",
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -88,13 +78,7 @@ fun AddMealScreen() {
                 FoodRow(food = food, trailing = {
                     val isAdded = recentlyAddedFoodId == food.id
                     Button(onClick = {
-                        val parsedGrams = grams.toFloatOrNull()
-                        if (parsedGrams == null || parsedGrams <= 0f) {
-                            warningMessage = "Enter a valid grams amount before adding."
-                            return@Button
-                        }
-
-                        vm.addMeal(food.id, selectedMeal, parsedGrams)
+                        vm.addMeal(food.id)
                         recentlyAddedFoodId = food.id
                     }) {
                         if (isAdded) {
@@ -118,37 +102,13 @@ fun AddMealScreen() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MealTypeSelector(selected: MealType, onSelect: (MealType) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-        OutlinedTextField(
-            value = selected.label,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Meal") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
-        )
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            MealType.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(it.label) },
-                    onClick = {
-                        onSelect(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun AddMealPreview() {
-    Column(modifier = Modifier.padding(16.dp)) { Text("Add meal preview") }
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) { Text("Add meal preview") }
 }
