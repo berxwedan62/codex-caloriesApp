@@ -49,6 +49,8 @@ fun AddMealScreen() {
     val foods by vm.foods.collectAsState()
 
     var query by remember { mutableStateOf("") }
+    var selectedFoodForAdd by remember { mutableStateOf<FoodItem?>(null) }
+    var gramInput by remember { mutableStateOf("") }
     var recentlyAddedFoodId by remember { mutableStateOf<Long?>(null) }
     var recentlyAddedGrams by remember { mutableStateOf<Float?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,10 +89,8 @@ fun AddMealScreen() {
                 FoodRow(food = food, trailing = {
                     val isAdded = recentlyAddedFoodId == food.id
                     Button(onClick = {
-                        val gramsToAdd = food.defaultGramAmount
-                        vm.addMeal(food.id, grams = gramsToAdd)
-                        recentlyAddedFoodId = food.id
-                        recentlyAddedGrams = gramsToAdd
+                        selectedFoodForAdd = food
+                        gramInput = food.defaultGramAmount.toInt().toString()
                     }) {
                         if (isAdded) {
                             Icon(
